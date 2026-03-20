@@ -9,9 +9,10 @@ import (
 
 	"kagongjok/internal/config"
 	"kagongjok/internal/connection"
+	"kagongjok/internal/provider"
 )
 
-func Start(ctx context.Context) {
+func Start(ctx context.Context, p provider.Provider) {
 	for {
 		if ctx.Err() != nil {
 			return
@@ -27,7 +28,7 @@ func Start(ctx context.Context) {
 		} else {
 			slog.Error("Health check failed", "error", err)
 
-			if err := connection.AttemptConnection(ctx); err != nil {
+			if err := connection.AttemptConnection(ctx, p); err != nil {
 				if ctx.Err() != nil {
 					return
 				}
