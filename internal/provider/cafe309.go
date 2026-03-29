@@ -51,7 +51,7 @@ func (c *Cafe309Provider) Login(ctx context.Context, page *rod.Page) error {
 	slog.Info("Page loaded, looking for preliminary submit or agree button...")
 
 	err = rod.Try(func() {
-		if el, err := page.Element(`input[type="submit"]`); err == nil && el != nil {
+		if el, err := page.Timeout(3 * time.Second).Element(`input[type="submit"]`); err == nil && el != nil {
 			el.MustClick()
 			page.MustWaitNavigation()
 		}
