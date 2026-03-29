@@ -20,7 +20,7 @@ func GetProvider(name string) (Provider, error) {
 	switch name {
 	case "starbucks":
 		return &StarbucksProvider{}, nil
-	case "309cafe":
+	case "309":
 		return &Cafe309Provider{}, nil
 	default:
 		return nil, fmt.Errorf("unknown provider: %s", name)

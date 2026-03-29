@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	providerName := flag.String("provider", "starbucks", "Wi-Fi provider to connect to (starbucks, 309cafe)")
+	providerName := flag.String("provider", "starbucks", "Wi-Fi provider to connect to (starbucks, 309)")
 	flag.Parse()
 
 	// Configure default structured logger

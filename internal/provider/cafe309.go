@@ -21,7 +21,7 @@ const (
 type Cafe309Provider struct{}
 
 func (c *Cafe309Provider) Name() string {
-	return "309cafe"
+	return "309"
 }
 
 func (c *Cafe309Provider) Login(ctx context.Context, page *rod.Page) error {
