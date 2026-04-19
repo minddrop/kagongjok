@@ -1,40 +1,39 @@
-# Kagongjok (Cafe Study Helper) ☕️💻
+# Kagongjok
 
-**Stay Connected at Starbucks Japan.**
+Kagongjok is a background script that automatically logs you back into captive portal Wi-Fi networks when your session times out. It pings an external server to check connectivity and uses a headless browser to complete the login portal flow when the internet goes down.
 
-Kagongjok acts as your personal WiFi assistant. It runs in the background and automatically logs you back into the "at_STARBUCKS_Wi2" network whenever your session times out (usually every hour).
+## Usage
 
-Perfect for long study or work sessions where you don't want to break your flow to click "Connect" again.
+You need Go installed on your system. 
 
-## Features
+```bash
+# Clone the repository and install dependencies
+go mod download
 
-- 🔄 **Auto-Reconnect**: Detects when internet is lost and instantly logs you back in.
-- 💨 **Fast**: Connects in seconds.
-- 🤖 **Hands-free**: Just run it and forget it.
+# Run with the default provider (Starbucks Japan)
+go run .
 
-## How to Use
+# Run with an alternative provider
+go run . -provider=309
+```
+*Note: You don't need to manually install Chrome or Chromium. The `go-rod` library automatically downloads a headless Chromium binary at runtime if one isn't found.*
 
-### Prerequisites
+## Supported Networks
 
-1. **Go**: [Install Go](https://go.dev/dl/) on your laptop.
-2. **Chrome/Chromium**: The tool uses a browser in the background to handle the login page.
+- `starbucks` (at_STARBUCKS_Wi2, used at Starbucks in Japan)
+- `309` (Cafe 309)
 
-### Running it
+## Adding a new provider
 
-1. Open your terminal.
-2. Navigate to the project folder.
-3. Run the tool:
+The core logic is split between `healthcheck` and `provider`. To add a new Wi-Fi network:
 
-    ```bash
-    go run .
-    ```
-
-4. Keep the terminal open. You will see logs telling you when it's checking connectivity and when it reconnects you.
-
-## How it Works
-
-Every 10 seconds, it ping-checks Google. If the ping fails (because the WiFi timed out), it launches a hidden browser window, navigates to the Starbucks login portal, clicks "Connect" and "Accept", and then goes back to sleep.
-
-## Important Note
-
-This tool is designed for use at Starbucks locations in Japan that use the `at_STARBUCKS_Wi2` network.
+1. Create a new provider file in `internal/provider/` (e.g., `mynetwork.go`).
+2. Implement the `Provider` interface:
+   ```go
+   type Provider interface {
+       Name() string
+       Login(ctx context.Context, page *rod.Page) error
+   }
+   ```
+3. Use the `page` object to automate the captive portal's login flow using `go-rod`.
+4. Register your provider in `internal/provider/provider.go` inside `GetProvider()`.
