@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 	"math/rand"
-	"strings"
+	"net/http"
 	"time"
 
+	"kagongjok/internal/config"
 	"kagongjok/internal/util"
 
 	"github.com/go-rod/rod"
@@ -87,18 +88,37 @@ func (c *Cafe309Provider) Login(ctx context.Context, page *rod.Page) error {
 	}
 
 	info, err = page.Info()
-	if err != nil {
-		return fmt.Errorf("failed to get info: %w", err)
-	}
-	finishTitle := info.Title
-
-	slog.Info(fmt.Sprintf("Navigated to %s", finishTitle))
-
-	if finishTitle == "logged in" || finishTitle == "SMaRK" || finishTitle == "Example Domain" || strings.Contains(info.URL, "example.com") {
-		slog.Info("Automatic login successful.")
-		return nil
+	if err == nil {
+		slog.Info(fmt.Sprintf("Navigated to %s", info.Title))
 	}
 
-	slog.Info("Automatic login failed.")
-	return fmt.Errorf("autologin failed, title: %s", finishTitle)
+	slog.Info("Verifying internet connectivity...")
+	client := &http.Client{Timeout: 3 * time.Second}
+
+	for i := 0; i < 5; i++ {
+		req, err := http.NewRequestWithContext(ctx, "GET", config.HealthCheckTarget, nil)
+		if err == nil {
+			resp, err := client.Do(req)
+			if err == nil {
+				resp.Body.Close()
+				if resp.StatusCode == 200 || resp.StatusCode == 204 {
+					slog.Info("Automatic login successful.")
+					return nil
+				}
+			}
+		}
+
+		select {
+		case <-time.After(1 * time.Second):
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+
+	slog.Info("Automatic login failed (no internet connectivity).")
+	title := "unknown"
+	if info != nil {
+		title = info.Title
+	}
+	return fmt.Errorf("autologin failed, no internet connectivity established; final title: %s", title)
 }
