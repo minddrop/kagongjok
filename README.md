@@ -2,18 +2,45 @@
 
 Kagongjok is a background script that automatically logs you back into captive portal Wi-Fi networks when your session times out. It pings an external server to check connectivity and uses a headless browser to complete the login portal flow when the internet goes down.
 
+## Installation
+
+### Option 1: Quick Install (macOS / Linux)
+You can easily install the latest pre-compiled release by running:
+```bash
+curl -sSfL https://raw.githubusercontent.com/minddrop/kagongjok/main/install.sh | sh
+```
+
+### Option 2: Install with Go (All platforms)
+If you already have Go installed, the easiest way is:
+```bash
+go install github.com/minddrop/kagongjok@latest
+```
+
+### Option 3: Build from Source (All platforms)
+If you prefer to clone the repository and build it yourself:
+```bash
+# Clone the repository and build
+git clone https://github.com/minddrop/kagongjok
+cd kagongjok
+go build -o kagongjok .
+```
+
+### Option 4: Download Pre-compiled Binary
+You can download the pre-compiled binary (`.zip` for Windows, `.tar.gz` for macOS/Linux) directly from the [Releases page](https://github.com/minddrop/kagongjok/releases).
+
 ## Usage
 
-You need Go installed on your system. 
-
+If you installed via the quick install script or built the binary:
 ```bash
-# Clone the repository and install dependencies
-go mod download
-
 # Run with the default provider (Starbucks Japan)
-go run .
+kagongjok
 
 # Run with an alternative provider
+kagongjok 309
+```
+
+If you prefer to run it using Go directly without installing:
+```bash
 go run . 309
 ```
 *Note: You don't need to manually install Chrome or Chromium. The `go-rod` library automatically downloads a headless Chromium binary at runtime if one isn't found.*
