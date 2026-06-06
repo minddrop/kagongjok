@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log/slog"
 	"os"
@@ -40,16 +39,18 @@ func (h *PrettyHandler) WithAttrs(attrs []slog.Attr) slog.Handler { return h }
 func (h *PrettyHandler) WithGroup(name string) slog.Handler       { return h }
 
 func main() {
-	providerName := flag.String("provider", "starbucks", "Wi-Fi provider to connect to (starbucks, 309)")
-	flag.Parse()
+	providerName := "starbucks"
+	if len(os.Args) > 1 {
+		providerName = os.Args[1]
+	}
 
 	// Configure default structured logger
-	logger := slog.New(&PrettyHandler{provider: *providerName})
+	logger := slog.New(&PrettyHandler{provider: providerName})
 	slog.SetDefault(logger)
 
 	slog.Info("Started...")
 
-	p, err := provider.GetProvider(*providerName)
+	p, err := provider.GetProvider(providerName)
 	if err != nil {
 		slog.Error("Failed to initialize provider", "error", err)
 		os.Exit(1)
