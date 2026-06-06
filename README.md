@@ -14,7 +14,7 @@ go mod download
 go run .
 
 # Run with an alternative provider
-go run . -provider=309
+go run . 309
 ```
 *Note: You don't need to manually install Chrome or Chromium. The `go-rod` library automatically downloads a headless Chromium binary at runtime if one isn't found.*
 
