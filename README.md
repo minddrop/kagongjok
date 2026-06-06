@@ -43,7 +43,22 @@ If you prefer to run it using Go directly without installing:
 ```bash
 go run . 309
 ```
-*Note: You don't need to manually install Chrome or Chromium. The `go-rod` library automatically downloads a headless Chromium binary at runtime if one isn't found.*
+
+## Uninstallation
+
+Depending on how you installed Kagongjok, use the matching uninstallation command:
+
+If you installed via **Option 1** (Quick Install script):
+```bash
+sudo rm /usr/local/bin/kagongjok
+```
+
+If you installed via **Option 2** (`go install`):
+```bash
+rm $(go env GOPATH)/bin/kagongjok
+```
+
+If you downloaded the binary or built it from source manually, simply delete the `kagongjok` executable file.
 
 ## Supported Networks
 
