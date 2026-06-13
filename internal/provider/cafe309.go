@@ -49,14 +49,21 @@ func (c *Cafe309Provider) Login(ctx context.Context, page *rod.Page) error {
 		return nil
 	}
 
-	slog.Info("Page loaded, looking for preliminary submit or agree button...")
+	slog.Info("Page loaded, clicking on preliminary submit or agree button...")
+
+	_, err = page.Element(`input[type="submit"]`)
+	if err != nil {
+		return fmt.Errorf("failed to find submit button: %w", err)
+	}
 
 	err = rod.Try(func() {
-		if el, err := page.Timeout(3 * time.Second).Element(`input[type="submit"]`); err == nil && el != nil {
-			el.MustClick()
-			page.MustWaitNavigation()
-		}
+		wait := page.MustWaitNavigation()
+		page.MustElement(`input[type="submit"]`).MustClick()
+		wait()
 	})
+	if err != nil {
+		return fmt.Errorf("failed during preliminary submit: %w", err)
+	}
 
 	slog.Info("Reading terms of use (TOP.html)...")
 	select {

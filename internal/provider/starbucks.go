@@ -57,8 +57,9 @@ func (s *StarbucksProvider) Login(ctx context.Context, page *rod.Page) error {
 	}
 
 	err = rod.Try(func() {
+		wait := page.MustWaitNavigation()
 		page.MustElement(`input[type="submit"]`).MustClick()
-		page.MustWaitNavigation()
+		wait()
 	})
 	if err != nil {
 		return fmt.Errorf("failed to submit login form: %w", err)

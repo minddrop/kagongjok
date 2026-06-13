@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"kagongjok/internal/provider"
 
@@ -15,6 +16,9 @@ import (
 // AttemptConnection tries to log in to the Wi-Fi using the specified provider.
 func AttemptConnection(ctx context.Context, p provider.Provider) error {
 	slog.Info("Attempting connection...")
+
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
 
 	// Launch browser headless
 	if ctx.Err() != nil {
