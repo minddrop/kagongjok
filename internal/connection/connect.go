@@ -25,7 +25,12 @@ func AttemptConnection(ctx context.Context, p provider.Provider) error {
 		return ctx.Err()
 	}
 
-	u, err := launcher.New().Headless(true).Launch()
+	l := launcher.New().Headless(true)
+	if path, has := launcher.LookPath(); has {
+		l.Bin(path)
+	}
+
+	u, err := l.Launch()
 	if err != nil {
 		return fmt.Errorf("failed to launch browser: %w", err)
 	}
@@ -49,3 +54,28 @@ func AttemptConnection(ctx context.Context, p provider.Provider) error {
 
 	return nil
 }
+
+// EnsureBrowser checks if a browser binary is installed locally.
+// If not, it downloads the required browser binary so that browser automation
+// is ready even when internet connection is lost later.
+func EnsureBrowser(ctx context.Context) error {
+	l := launcher.NewBrowser()
+	l.Context = ctx
+
+	if l.Validate() == nil {
+		slog.Debug("Browser binary requirement already installed", "path", l.BinPath())
+		return nil
+	}
+
+	slog.Info("Downloading browser binary requirement (Chromium)...")
+
+	path, err := l.Get()
+	if err != nil {
+		return fmt.Errorf("failed to download browser binary: %w", err)
+	}
+
+	slog.Info("Browser binary requirement installed successfully.", "path", path)
+	return nil
+}
+
+

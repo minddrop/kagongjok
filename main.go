@@ -1,5 +1,7 @@
 package main
 
+//go:generate go run . sync
+
 import (
 	"context"
 	"fmt"
@@ -8,6 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"kagongjok/internal/connection"
 	"kagongjok/internal/healthcheck"
 	"kagongjok/internal/provider"
 )
@@ -48,7 +51,26 @@ func main() {
 	logger := slog.New(&PrettyHandler{provider: providerName})
 	slog.SetDefault(logger)
 
+	// Create context that cancels on interrupt signals
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	if providerName == "sync" || providerName == "install" || providerName == "--sync" {
+		slog.Info("Syncing requirements...")
+		if err := connection.EnsureBrowser(ctx); err != nil {
+			slog.Error("Failed to sync requirements", "error", err)
+			os.Exit(1)
+		}
+		slog.Info("All requirements installed successfully.")
+		return
+	}
+
 	slog.Info("Started...")
+
+	// Ensure browser requirement is installed upfront while internet is active
+	if err := connection.EnsureBrowser(ctx); err != nil {
+		slog.Warn("Failed to ensure browser requirement", "error", err)
+	}
 
 	p, err := provider.GetProvider(providerName)
 	if err != nil {
@@ -56,13 +78,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create context that cancels on interrupt signals
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
 	go healthcheck.Start(ctx, p)
 
 	<-ctx.Done()
 
 	slog.Info("Shutting down...")
 }
+

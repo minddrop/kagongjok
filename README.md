@@ -44,6 +44,17 @@ If you prefer to run it using Go directly without installing:
 go run . 309
 ```
 
+### Pre-syncing Requirements
+When running `go run .` for the first time while online, Kagongjok automatically downloads both Go module dependencies and the headless browser binary required for captive portal login.
+
+If you want to pre-install/sync all requirements (including the browser binary) upfront without launching the background script:
+```bash
+go run . sync
+# or
+go generate ./...
+```
+
+
 ## Uninstallation
 
 Depending on how you installed Kagongjok, use the matching uninstallation command:
